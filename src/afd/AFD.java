@@ -9,6 +9,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AFD {
+    
+    public static char letras[] = new char[26];
+    public static int aceptacion[]=null;
+    public  static String transiciones[][]=null;
+    public static int num_Estados = 0;
 
     public static void leer(){
         File archivo = new File ("C:\\Users\\Leandro\\Desktop\\AFN\\archivo.txt");
@@ -25,10 +30,10 @@ public class AFD {
         
         String linea = null;
         StringTokenizer str;
-        char letras[]=new char[26];
-        int aceptacion[]=null;
-        String transiciones[][]=null;
-        int num_Estados = 0;
+        
+        
+       
+        
         
         for(int i= 65; i<= 90;i++)
             letras[i-65]=(char)i;
@@ -82,7 +87,36 @@ public class AFD {
         }
     }
     
+    
+    public static boolean revisarDeterminismo(){
+        boolean noDeterminista = false; 
+        int i=0;
+        int j=0;
+        
+        while(!noDeterminista || i<num_Estados){
+            if(transiciones[i][j].length() <= 2 || transiciones[i][j+1].length() <= 2)
+                noDeterminista = true;
+            else{
+                i++;
+                j=0;
+              }
+        }
+        
+        return noDeterminista;
+        
+            
+
+}          
+    
+     public static void convertirDeterminista(){}
+    
     public static void main(String[] args){
         leer();
+        if(revisarDeterminismo())
+            convertirDeterminista();
+        //Encontrar mínimo
+        //Encontrar expresión regular
+        
+        
     }   
 }
