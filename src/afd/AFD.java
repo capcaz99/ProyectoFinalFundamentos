@@ -71,19 +71,34 @@ public class AFD {
             linea = in2.readLine();
             while (linea != null) {      
                 str = new StringTokenizer(linea);
+                String edo1=str.nextToken();
+                String acp1=str.nextToken();
+                String edo2=str.nextToken();
+                String acp2=str.nextToken();
+                
                 //con 0
-                transiciones[k][0]=str.nextToken();
+                if(edo1.contains(","))
+                    edo1=edo1.replace(",", "");
+                
+                transiciones[k][0]=edo1;
                 //ver si es estado de aceptación
-                for (int p=0;p<num_Estados;p++){
-                    if(Character.toString(letras[p]).equals(transiciones[k][0]))
-                        aceptacion[p]=Integer.parseInt(str.nextToken());
+                for(int h=0;h<edo1.length();h++){
+                    for (int p=0;p<num_Estados;p++){
+                        if(Character.toString(letras[p]).equals(Character.toString(transiciones[k][0].charAt(h))))
+                            aceptacion[p]=Integer.parseInt(acp1);
+                    }
                 }
                 //con 1
-                transiciones[k][1]=str.nextToken();
+                if(edo2.contains(","))
+                    edo2=edo2.replace(",", "");
+                
+                transiciones[k][1]=edo2;
                 //ver si es estado de aceptación
-                for (int p=0;p<num_Estados;p++){
-                    if(Character.toString(letras[p]).equals(transiciones[k][1]))
-                        aceptacion[p]=Integer.parseInt(str.nextToken());
+                for(int h=0;h<edo2.length();h++){
+                    for (int p=0;p<num_Estados;p++){
+                        if(Character.toString(letras[p]).equals(Character.toString(transiciones[k][1].charAt(h))))
+                            aceptacion[p]=Integer.parseInt(acp2);
+                    }
                 }
                 linea = in2.readLine();
                 k++;
@@ -617,7 +632,7 @@ public class AFD {
         //Encontrar mínimo
         //Encontrar expresión regular
         
-        
+        leer();
         String[][] prueba = new String[5][2];
         prueba[0][0]="E";
         prueba[0][1]="BD";
