@@ -20,7 +20,8 @@ public class AFD {
     //Para convertir a determinista
     public static int[] edosini;
     public static String trans[][]; 
-    public static int acep[] = new int [num_Estados*2];
+    public static int aceptacionNueva[];
+   public static int ultimo;
     public static int cont=0; //Variable que me indica en que valor de trans voy.
 
     public static void leer(){
@@ -170,26 +171,23 @@ public class AFD {
         for(int r=0;r<trans.length; r++)
             for(int w=0; w<3; w++)
                 System.out.println(trans[r][w]);
-        //estado de aceptación
+        
+        aceptacionNueva = aceptacion();
+        
         return renombrarEstados();
  }
+     
+     
      public static String[][] renombrarEstados(){
          //Agregar estado vacío
-         int ultimo = 0;
+         
          int i=0;
          String ult;
          int j= 0;
          
          
          //Convertir estados finales originales por nuevo estado final 
-         while(trans[i][0] != null && i<trans.length)
-             i++;
-         if(trans[i][0] == null)
-             ultimo = i;
-         else{
-             trans = agregarUno(trans);
-             ultimo = i+1;
-         }
+         
          trans[ultimo][0] = trans[ultimo][1]= trans[ultimo][2] = Character.toString(NumeroALetra(ultimo));
          
          
@@ -264,7 +262,39 @@ public class AFD {
      
   }
      
-     
+    public static int[] aceptacion(){
+        int i=0;
+        while(trans[i][0] != null && i<trans.length)
+             i++;
+         if(trans[i][0] == null)
+             ultimo = i;
+         else{
+             trans = agregarUno(trans);
+             ultimo = i+1;
+         }
+     int[] acep = new int[ultimo];
+     int cont = 0;
+     for(int j=0; j<trans.length; j++){
+            
+            if(trans[j][0] == null){
+            }else{
+                if(trans[j][0].length() == 1){
+                    acep[cont] = aceptacion[letraANumero(trans[j][0])];
+                    cont++;
+                }else{
+                    char[] separado = trans[i][0].toCharArray();
+                    int nueace = 0;
+                    int n= 0;
+                    while(nueace != 1 && n<separado.length)
+                        nueace = aceptacion[letraANumero(Character.toString(separado[n]))];
+                    acep[cont] = nueace;
+                    cont++;
+                }
+             }
+        }
+     return acep;
+    
+    } 
     public static void llenarTransiciones(){
          
         int num; 
