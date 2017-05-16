@@ -24,7 +24,7 @@ public class AFD {
     public static int cont=0; //Variable que me indica en que valor de trans voy.
 
     public static void leer(){
-        File archivo = new File ("C:\\Users\\Leandro\\Desktop\\AFN\\archivo.txt");
+        File archivo = new File ("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\" + "archivo.txt");
         FileReader fr1 = null;
         FileReader fr2 = null;
         try {
