@@ -680,21 +680,14 @@ public class AFD {
      }
     
     public static void main(String[] args){
-       // leer();
-        //if(revisarDeterminismo())
-          //  convertirDeterminista();
-        //Encontrar mínimo
-        //Encontrar expresión regular
+       
         String[][] determinista;
         leer();
         if(revisarDeterminismo())
             determinista = convertirDeterminista(); //Arreglo de transiciones. Aceptación nueva está en aceptacionNueva[];
-        else
+        else{
             //Como ya es determinista reducir.
-        
-      
-        
-    
+        }
     }
 }
 
