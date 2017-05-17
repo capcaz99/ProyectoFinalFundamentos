@@ -23,6 +23,8 @@ public class AFD {
     public static int aceptacionNueva[];
    public static int ultimo;
     public static int cont=0; //Variable que me indica en que valor de trans voy.
+    
+    
 
     public static void leer(){
         File archivo = new File ("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\" + "archivo.txt");
@@ -111,10 +113,11 @@ public class AFD {
         }
     }
     
-    public static String[][] iniciar(String[][] arreglo, int[] inicia){
+    public static String[][] iniciar(String[][] arreglo, int[] inicia, int[] aceptac){
         trans = new String [num_Estados*2][3];
         transiciones = arreglo;
         edosini = inicia;    
+        aceptacion = aceptac;
         return convertirDeterminista();
     }
     public static boolean revisarDeterminismo(){
@@ -272,7 +275,7 @@ public class AFD {
              trans = agregarUno(trans);
              ultimo = i+1;
          }
-     int[] acep = new int[ultimo];
+     int[] acep = new int[ultimo+1];
      int cont = 0;
      for(int j=0; j<trans.length; j++){
             
@@ -282,11 +285,13 @@ public class AFD {
                     acep[cont] = aceptacion[letraANumero(trans[j][0])];
                     cont++;
                 }else{
-                    char[] separado = trans[i][0].toCharArray();
+                    char[] sep = trans[j][0].toCharArray();
                     int nueace = 0;
-                    int n= 0;
-                    while(nueace != 1 && n<separado.length)
-                        nueace = aceptacion[letraANumero(Character.toString(separado[n]))];
+                    int n = 0;
+                    while(nueace != 1 && n<sep.length){
+                        nueace = aceptacion[letraANumero(Character.toString(sep[n]))];
+                        n++;
+                    }
                     acep[cont] = nueace;
                     cont++;
                 }
@@ -662,7 +667,7 @@ public class AFD {
         //Encontrar mínimo
         //Encontrar expresión regular
         
-        leer();
+        //leer();
         String[][] prueba = new String[5][2];
         prueba[0][0]="E";
         prueba[0][1]="BD";
@@ -681,14 +686,17 @@ public class AFD {
        
         
         String[][] resultado;
-        resultado = iniciar(prueba, iniciales);
+        int[] ace = new int[]{1,0,1,1};
+        resultado = iniciar(prueba, iniciales, ace);
         for(int i=0; i<resultado.length;i++)
-            for (int j=0; j<2; j++){
+            for (int j=0; j<2; j++)
                 System.out.println("Bajo "+j+"Estado: "+ resultado[i][j]);
-            }
+            
+        for(int f=0; f<aceptacionNueva.length;f++)        
+            System.out.println("Aceptación:"+aceptacionNueva[f]);
         
         
-        
+    
     }
 }
 
