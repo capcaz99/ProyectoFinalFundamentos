@@ -128,7 +128,7 @@ public class AFD {
         int i=0;
         int j=0;
         
-        while(!noDeterminista || i<num_Estados){
+        while(!noDeterminista && i<num_Estados){
             if(transiciones[i][j].length() >= 2 || transiciones[i][j+1].length() >= 2)
                 noDeterminista = true;
             else{
