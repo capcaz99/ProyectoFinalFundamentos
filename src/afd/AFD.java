@@ -16,7 +16,7 @@ public class AFD {
     public static char letras[] = new char[26];
     public static int aceptacion[]=null;
     public  static String transiciones[][]=null;
-    public static int num_Estados = 4;
+    public static int num_Estados;
     //Para convertir de no determinsita a determinista a determinista.
     //Arreglo en el cual se introducirán todos los estados iniciales del autómata inicial para despuñes crear uno solo. 
     public static int[] edosini = new int[]{1};    
@@ -31,7 +31,7 @@ public class AFD {
     
 
     public static void leer(){
-        trans = new String [num_Estados*3][3];
+        
         File archivo = new File ("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\" + "archivo.txt");
         FileReader fr1 = null;
         FileReader fr2 = null;
@@ -112,14 +112,13 @@ public class AFD {
                 k++;
             }
             in2.close();
+            trans = new String [num_Estados*3][3];
         }
         catch (IOException ex) {
             Logger.getLogger(AFD.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    
-   
     public static boolean revisarDeterminismo(){
         //Este método revisa si el autómata inicial es determinista o no determinista. 
         //Regresa una variable booleana llamada noDeterminista.
@@ -141,9 +140,7 @@ public class AFD {
         return noDeterminista;
     }
     
-    
-    
-     public static String[][] convertirDeterminista(){
+    public static String[][] convertirDeterminista(){
       //Este método inicia con el proceso de conversión de no determinista a determinista.
      
         //Juntar todos los estados iniciales en un string. 
@@ -298,7 +295,7 @@ public class AFD {
         }
     }
     
-     public static String[][] renombrarEstados(){
+    public static String[][] renombrarEstados(){
          //Agregar estado vacío
          
          int i=0;
@@ -353,8 +350,7 @@ public class AFD {
      
      }
      
-     
-     public static void sustituir(String estado, String letra, int ult){
+    public static void sustituir(String estado, String letra, int ult){
          //Este método cambia el nombre original del estado por la letra que le corresponde segúin su índice. 
          //Revisa en los tres renglones de trans para cambiar todas las ocurrencias del mismo.
          //Estado: El nombre del estado que voy a cambiar por "letra"
@@ -372,8 +368,7 @@ public class AFD {
          }
      }
      
-     
-     public static String[][] agregarUno(String[][] arre){
+    public static String[][] agregarUno(String[][] arre){
         //Este método agrega crea un arreglo más grande por uno del arreglo que se le envía y copia todo el arreglo del argumento en el nuevo.
      String[][] arreg = new String[arre.length+1][3];
     for(int i=0; i<arre.length; i++){
