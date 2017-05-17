@@ -17,12 +17,16 @@ public class AFD {
     public static int aceptacion[]=null;
     public  static String transiciones[][]=null;
     public static int num_Estados = 5;
-    //Para convertir a determinista
+    //Para convertir de no determinsita a determinista a determinista.
+    //Arreglo en el cual se introducirán todos los estados iniciales del autómata inicial para despuñes crear uno solo. 
     public static int[] edosini;
+    //Arreglo en el que se introducirán los nuevos estados y sus transiciones al momento de convertir.
     public static String trans[][]; 
+    //Contador que me indica en que valor de trans voy.
+    public static int cont=0; 
     public static int aceptacionNueva[];
-   public static int ultimo;
-    public static int cont=0; //Variable que me indica en que valor de trans voy.
+    public static int ultimo;
+    
     
     
 
@@ -114,13 +118,17 @@ public class AFD {
     }
     
     public static String[][] iniciar(String[][] arreglo, int[] inicia, int[] aceptac){
-        trans = new String [num_Estados*2][3];
+        trans = new String [num_Estados*3][3];
         transiciones = arreglo;
         edosini = inicia;    
         aceptacion = aceptac;
         return convertirDeterminista();
     }
     public static boolean revisarDeterminismo(){
+        //Este método revisa si el autómata inicial es determinista o no determinista. 
+        //Regresa una variable booleana llamada noDeterminista.
+        //Si es verdadera significa que el autómata es no determinista. 
+        
         boolean noDeterminista = false; 
         int i=0;
         int j=0;
@@ -140,13 +148,11 @@ public class AFD {
     
     
      public static String[][] convertirDeterminista(){
-      
+      //Este método inicia con el proceso de conversión de no determinista a determinista.
      
-      
-     
-     int num;
-     
-        StringBuilder builder = new StringBuilder();
+        //Juntar todos los estados iniciales en un string. 
+         
+         StringBuilder builder = new StringBuilder();
         char letra;
         for(int i=0; i<edosini.length; i++){
             if(edosini[i] == 1){
@@ -154,7 +160,8 @@ public class AFD {
                 builder.append(letra);
             }
         }
-            
+         
+        //Introducir el nuevo estado inicial en trans.
         if(cont<trans.length){
                trans[cont][0] = builder.toString();
                cont++;
@@ -163,24 +170,138 @@ public class AFD {
               trans[cont][0] =  builder.toString();
               cont++;
         }
-                
         
-      
-        
-        
-        
-    
         llenarTransiciones();
-        for(int r=0;r<trans.length; r++)
-            for(int w=0; w<3; w++)
-                System.out.println(trans[r][w]);
         
         aceptacionNueva = aceptacion();
         
         return renombrarEstados();
  }
      
-     
+    public static void llenarTransiciones() {
+        //Este arreglo llena el arreglo trans con las trasnciiones de los nuevos estados generados a partir de el o los de inicio. 
+        int num;
+        //Recorrer todo el arreglo de trans para llenar transiciones de estado inicial y de nuevos estados generados. 
+        
+        for (int i = 0; i < trans.length; i++) {
+            //Si el elemento es vacío no hagas nada. 
+            if (trans[i][0] == null) {
+            } else {
+                //Si el elemento es simple. 
+                if (trans[i][0].length() == 1) {
+                    //Llenar transiciones de este elemento con transiciones del autómata original 
+                    num = letraANumero(trans[i][0]);
+                    trans[i][1] = transiciones[num][0];
+                    //Verificar si el estado obtenido es el estado sumidero para no introducirlo en el arreglo trans. 
+                    if (trans[i][1].equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                    } else {
+                        //si no es el estado sumidero verificar si ya está en el arreglo
+                        //Si no está se introduce. 
+                        if (revisarExistencia(trans[i][1]) == false) {
+                            //Verificar que en el arreglo haya aun espacio
+                            if (cont < trans.length) {
+
+                                trans[cont][0] = trans[i][1];
+
+                                cont++;
+                            } else {
+                                //Si no hay espacio se agranda el arreglo y después se introduce el nuevo estado. 
+                                trans = agrandarArreglo(trans);
+                                trans[cont][0] = trans[i][1];
+                                cont++;
+                            }
+                        }
+                    }
+                    trans[i][2] = transiciones[num][1];
+                    if (trans[i][2].equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                    } else {
+                        if (revisarExistencia(trans[i][2]) == false) {
+                            if (cont < trans.length) {
+                                trans[cont][0] = trans[i][2];
+                                cont++;
+                            } else {
+                                trans = agrandarArreglo(trans);
+                                trans[cont][0] = trans[i][2];
+                                cont++;
+                            }
+                        }
+                    }
+                //Si el estado es compuesto
+                } else {
+                    
+                    //Separar el estado compuesto en estados separados. 
+                    char[] separado = trans[i][0].toCharArray();
+
+                    String tra0[] = new String[separado.length]; //Transiciones  de los estados en separado bajo cero
+                    String tra1[] = new String[separado.length];//Transiciones  de los estados en separado bajo uno
+                    char movi[][] = new char[separado.length][2]; // Transiciones con letra de los estados separados
+                    
+                    //Copiar transiciones de elementos en separado a tra0 y tra1.
+                    int r = 0;
+                    for (int k = 0; k < separado.length; k++) {
+
+                        tra0[k] = transiciones[letraANumero(Character.toString(separado[k]))][0];
+
+                        tra1[k] = transiciones[letraANumero(Character.toString(separado[k]))][1];
+
+                    }
+                 //Ordenar tra0 y tra1 y eliminar repetidos. 
+
+                    tra0 = OrdenayDuplicados(tra0);
+                    tra1 = OrdenayDuplicados(tra1);
+
+                    //Juntar letras y crear nuevo estado
+                    String e0 = crearEstado(tra0);
+                    String e1 = crearEstado(tra1);
+
+                    
+                    
+                    if (cont < trans.length) {
+                        //si no es el estado sumidero verificar si ya está en el arreglo
+                        if (e0.equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                        } else {
+                            //Si no está se introduce.
+                            if (revisarExistencia(e0) == false) {
+                                trans[cont][0] = e0;
+                                cont++;
+                            }
+                        }
+
+                        if (e1.equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                        } else {
+                            if (revisarExistencia(e1) == false) {
+                                trans[cont][0] = e1;
+                                cont++;
+                            }
+                        }
+                    } else {
+                        trans = agrandarArreglo(trans);
+                        if (e0.equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                        } else {
+                            if (revisarExistencia(e0) == false) {
+                                trans[cont][0] = e0;
+                                cont++;
+                            }
+                        }
+                        if (e0.equals(Character.toString(NumeroALetra(num_Estados - 1)))) {
+                        } else {
+                            if (revisarExistencia(e1) == false) {
+                                trans[cont][0] = e1;
+                                cont++;
+                            }
+                        }
+                    }
+
+                    trans[i][1] = e0;
+                    trans[i][2] = e1;
+
+                }
+
+            }
+
+        }
+    }
+    
      public static String[][] renombrarEstados(){
          //Agregar estado vacío
          
@@ -238,7 +359,9 @@ public class AFD {
      
      
      public static void sustituir(String estado, String letra, int ult){
-         //Estado: la letra que voy a cambiar por "letra"
+         //Este método cambia el nombre original del estado por la letra que le corresponde segúin su índice. 
+         //Revisa en los tres renglones de trans para cambiar todas las ocurrencias del mismo.
+         //Estado: El nombre del estado que voy a cambiar por "letra"
          
          for(int i=0; i<=ult; i++){
              
@@ -255,6 +378,7 @@ public class AFD {
      
      
      public static String[][] agregarUno(String[][] arre){
+        //Este método agrega crea un arreglo más grande por uno del arreglo que se le envía y copia todo el arreglo del argumento en el nuevo.
      String[][] arreg = new String[arre.length+1][3];
     for(int i=0; i<arre.length; i++){
          arreg[i][0] = arre [i][0];
@@ -266,7 +390,10 @@ public class AFD {
   }
      
     public static int[] aceptacion(){
+        //Este método llena el nuevo arreglo de acpetaciones del nuevo autómata determinista.
         int i=0;
+        //Encontrar el último elemento de trans ya, por su tamaño, tiene varios espacios vacíos. 
+        //Se utiliza el índice del útlimo elemento para determinar el tamaño del nuevo arreglo de aceptación. 
         while(trans[i][0] != null && i<trans.length)
              i++;
          if(trans[i][0] == null)
@@ -278,13 +405,17 @@ public class AFD {
      int[] acep = new int[ultimo+1];
      int cont = 0;
      for(int j=0; j<trans.length; j++){
-            
+           //LLenar el nuevo arreglo de aceptación 
             if(trans[j][0] == null){
             }else{
                 if(trans[j][0].length() == 1){
+                    //Si es simple el estado se copia la aceptación original 
                     acep[cont] = aceptacion[letraANumero(trans[j][0])];
                     cont++;
                 }else{
+                    //Si es compuesto el estado se hace un or de las acpetaciones de los estado por los que está compuesto.
+                    //Si se encuentra uno sabemos que ya será todo uno por lo que se detiene la búsqueda y se coloca uno
+                    //SI no se encuentra se coloca cero. 
                     char[] sep = trans[j][0].toCharArray();
                     int nueace = 0;
                     int n = 0;
@@ -300,147 +431,23 @@ public class AFD {
      return acep;
     
     } 
-    public static void llenarTransiciones(){
-         
-        int num; 
-        int j=0;
-        for(int i=0; i<trans.length; i++){
-            
-            if(trans[i][0] == null){
-            }else{
-               
-            if(trans[i][0].length() == 1){
-                num = letraANumero(trans[i][0]);
-               
-                trans[i][1] = transiciones[num][0];
-                if(trans[i][1].equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                else{
-                if(revisarExistencia(trans[i][1]) == false){
-                    if(cont<trans.length){
-                        
-                       trans[cont][0] = trans[i][1];
-                      
-                       cont++;
-                    }else{     
-                        trans = agrandarArreglo(trans);
-                        trans[cont][0] =  trans[i][1];
-                         cont++;
-                       }
-                }}
-                trans[i][2] = transiciones[num][1];
-                if(trans[i][2].equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                else{
-                if(revisarExistencia(trans[i][2]) == false){
-                    if(cont<trans.length){
-                       trans[cont][0] = trans[i][2];
-                       cont++;
-                    }else{     
-                        trans = agrandarArreglo(trans);
-                        trans[cont][0] =  trans[i][2];
-                         cont++;
-                       }
-                }}
-                
-                
-            }else{
-                
-                //Separar las trasniciones multiples
-                
-                 char[] separado = trans[i][0].toCharArray();
-                 
-                 
-                 
-                 String tra0[] = new String[separado.length]; //Transiciones  de los estados en separado bajo cero
-                 String tra1[] = new String[separado.length];//Transiciones  de los estados en separado bajo uno
-                 char movi[][] = new char[separado.length][2]; // Transiciones con letra de los estados separados
-                 //Copiar transiciones de elementos en separado a tra
-                 int r=0;
-                 for(int k=0; k<separado.length; k++){
-                    
-                     
-                     tra0[k] = transiciones[letraANumero(Character.toString(separado[k]))][0];
-                    
-                     
-                     tra1[k] = transiciones[letraANumero(Character.toString(separado[k]))][1];
-                     
-                     
-                     
-                 }
-                 //Ordenar tra y eliminar repetidos. 
-                 
-                 tra0 = OrdenayDuplicados(tra0);
-                 tra1 = OrdenayDuplicados(tra1);
-                 
-                   
-                 
-                 //Juntar letras y crear nuevo estado
-                 String e0 = crearEstado(tra0);
-                 String e1 = crearEstado(tra1);
-                   
-                
-                
-                
-                 if(cont<trans.length){
-                     if(e0.equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                     else{
-                     if(revisarExistencia(e0) == false){
-                         trans[cont][0] = e0;
-                         cont++;
-                     }
-                     }
-                     
-                     if(e1.equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                     else{
-                     if(revisarExistencia(e1) == false){
-                         trans[cont][0] = e1;
-                         cont++;
-                     }
-                     }
-                 }else{
-                     trans = agrandarArreglo(trans);
-                     if(e0.equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                     else{
-                     if(revisarExistencia(e0) == false){
-                        trans[cont][0] = e0;
-                        cont++;
-                     }
-                     }
-                     if(e0.equals(Character.toString(NumeroALetra(num_Estados-1)))){}
-                     else{
-                     if(revisarExistencia(e1) == false){
-                        trans[cont][0] = e1;
-                        cont++;
-                     }
-                     }
-                 }
-                
-                     
-                 trans[i][1] = e0;
-                 trans[i][2] = e1;
-                 
-               
-            }
-                 
-            
-            }
-      
-     }
-    } 
-     
-     
- 
-     
+    
     public static String crearEstado(String[] tra){
-           char transSeparadas[] = new char[100];  //revisar tamaño
+        //Este método crea la transición de los estados compuestos.
+        
+        
+        //Se colocan las transiciones recibidas en tra en un arreglo separadas todas en simples. 
+           char transSeparadas[] = new char[100];  
                  int e = 0;
                  for(int n=0; n<tra.length; n++){
                      int y = tra[n].length();
                      if( y == 1){
+                         //Si es simple se copia directamente.
                          transSeparadas[e] = tra[n].charAt(0);
-                         
                          
                          e++;
                      }else{
+                         //Si es compuesta se separa y se copian simples. 
                          char letras[] = new char[y];
                          letras = tra[n].toCharArray();
                          for(int t=0; t<y; t++){
@@ -453,13 +460,18 @@ public class AFD {
        
          
         String[] estado;
-        
+        //Se eliminan los estados repteidos y se ordenan por orden alfabético.
         estado = duplicadosCharArray(transSeparadas);
+        
+        //Se juntan en un String todos los estados resultantes.
         String a = new String();
         StringBuilder builder = new StringBuilder();
+        //Se eliminan las letras correspondientes al estado sumidero. 
         if(revisarFinal(estado)){
+            //Si el estado está solamente compuesto por el sumidero se coloca la letra del sumidero. 
             a = Character.toString(NumeroALetra(num_Estados-1));
         }else{
+            //Si tienen otros estados se elimina el estado sumidero. 
         for(int j=0; j<estado.length; j++){
             if(letraANumero(estado[j])+1 != num_Estados)
                 builder.append(estado[j]);
@@ -472,6 +484,7 @@ public class AFD {
      }
      
     public static boolean revisarFinal(String[] arre){
+        //Este estado verifica si los estados enviados en arre están solamente compuestos por el estado sumidero
         boolean fin = true;
         
         int i=0;
@@ -484,6 +497,7 @@ public class AFD {
     }
     
     public static String[][] agrandarArreglo(String[][] arreglo){
+        //Este método agranda el arreglo que se envía en los parámetros ya que se acabó el espacio para trabajar con él. 
     String[][] arre = new String[arreglo.length*2][3];
     for(int i=0; i<arreglo.length; i++){
          arre[i][0] = arreglo [i][0];
@@ -494,7 +508,7 @@ public class AFD {
   } 
     
     public static String[] duplicadosCharArray(char[] array) {
-    
+        //Este método elimina los elementos duplicados en array por medio de un Set. 
         String[] A = new String[array.length];
         for(int n=0; n<array.length; n++){
             A[n]=Character.toString(array[n]);
@@ -506,7 +520,8 @@ public class AFD {
          
          
          
-             
+           //Al introducirlos en un set y despueés convertilos en un arreglo de strings se produce un ezpacio vacío en el primer elemento del 
+          // arreglo por lo que tenemos que crear un nuevo arreglo y copiar el arreglo original eliminando ese espacio vacío. 
          String[] B = new String[A.length-1];
          
          
@@ -522,6 +537,7 @@ public class AFD {
      }
     
     public static boolean revisarExistencia(String letra){
+        //Este método verifica si el estado que se está enviadno en letra exista ya en el primer rengón de trans. 
          int i=0;
          boolean encontre =false;
          
@@ -537,14 +553,18 @@ public class AFD {
      }
      
     public static String[] OrdenayDuplicados(String[] A) {
+        //Este método elimina los elementos duplicados en array por medio de un Set.
          Set<String> set = new HashSet<String>(Arrays.asList(A));
-         A = set.toArray(new String[set.size()]); //prints [Audi, Mercedes, BMW]
+         A = set.toArray(new String[set.size()]); 
          
          Arrays.sort(A);
          return A;
      }
      
     public static int letraANumero(String letra){
+        //Este método nos regresa el valor númerico de la localidad del arreglo dada una letra. 
+        //Si incertamos, por ejemplo, la letra A nos regrea 0 porque la paosición cero de los arreglos de trans y de acpetación 
+        //se refieren a la A
          switch (letra){
              case "A":
                  return 0;
@@ -603,6 +623,9 @@ public class AFD {
      }
      
     public static char NumeroALetra(int num){
+        //Este método nos regresa la letra dado un número
+        //Si incertamos, por ejemplo, el 0 nos regresa una A porque en los arreglos el estado A es la posición 0.
+        
          switch (num){
              case 0:
                  return 'A';
