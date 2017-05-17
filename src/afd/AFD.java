@@ -16,10 +16,10 @@ public class AFD {
     public static char letras[] = new char[26];
     public static int aceptacion[]=null;
     public  static String transiciones[][]=null;
-    public static int num_Estados = 5;
+    public static int num_Estados = 4;
     //Para convertir de no determinsita a determinista a determinista.
     //Arreglo en el cual se introducirán todos los estados iniciales del autómata inicial para despuñes crear uno solo. 
-    public static int[] edosini;
+    public static int[] edosini = new int[]{1};    
     //Arreglo en el que se introducirán los nuevos estados y sus transiciones al momento de convertir.
     public static String trans[][]; 
     //Contador que me indica en que valor de trans voy.
@@ -31,6 +31,7 @@ public class AFD {
     
 
     public static void leer(){
+        trans = new String [num_Estados*3][3];
         File archivo = new File ("C:\\Users\\" + System.getProperty("user.name") + "\\Desktop\\" + "archivo.txt");
         FileReader fr1 = null;
         FileReader fr2 = null;
@@ -117,13 +118,8 @@ public class AFD {
         }
     }
     
-    public static String[][] iniciar(String[][] arreglo, int[] inicia, int[] aceptac){
-        trans = new String [num_Estados*3][3];
-        transiciones = arreglo;
-        edosini = inicia;    
-        aceptacion = aceptac;
-        return convertirDeterminista();
-    }
+    
+   
     public static boolean revisarDeterminismo(){
         //Este método revisa si el autómata inicial es determinista o no determinista. 
         //Regresa una variable booleana llamada noDeterminista.
@@ -689,35 +685,14 @@ public class AFD {
           //  convertirDeterminista();
         //Encontrar mínimo
         //Encontrar expresión regular
+        String[][] determinista;
+        leer();
+        if(revisarDeterminismo())
+            determinista = convertirDeterminista(); //Arreglo de transiciones. Aceptación nueva está en aceptacionNueva[];
+        else
+            //Como ya es determinista reducir.
         
-        //leer();
-        String[][] prueba = new String[5][2];
-        prueba[0][0]="E";
-        prueba[0][1]="BD";
-        prueba[1][0]="E";
-        prueba[1][1]="A";
-        prueba[2][0]="E";
-        prueba[2][1]="BD";
-        prueba[3][0]="BC";
-        prueba[3][1]="E";
-        prueba[4][0]="E";
-        prueba[4][1]="E";
-        
-        
-        
-        int[] iniciales = new int[] {1,1,0,0};
-       
-        
-        String[][] resultado;
-        int[] ace = new int[]{1,0,1,1};
-        resultado = iniciar(prueba, iniciales, ace);
-        for(int i=0; i<resultado.length;i++)
-            for (int j=0; j<2; j++)
-                System.out.println("Bajo "+j+"Estado: "+ resultado[i][j]);
-            
-        for(int f=0; f<aceptacionNueva.length;f++)        
-            System.out.println("Aceptación:"+aceptacionNueva[f]);
-        
+      
         
     
     }
